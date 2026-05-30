@@ -49,7 +49,7 @@ export default function QuizView({
       }} />
 
       {/* 顶部导航栏 */}
-      <div className="sticky top-0 z-10 bg-amber-50/90 backdrop-blur-md border-b border-gray-200 px-4 py-3 relative">
+      <div className="sticky top-0 z-10 bg-amber-50/90 backdrop-blur-md border-b border-gray-200 px-4 py-3 ">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}

@@ -36,6 +36,7 @@ export interface UseQuizReturn {
   isLastQuestion: boolean;
   dimensionPercents: DimensionPercent[];
   history: HistoryRecord[];
+  resultImageIndex: number | null;
 
   // 方法
   startQuiz: () => void;
@@ -114,6 +115,8 @@ export const useQuiz = (): UseQuizReturn => {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   // 最终测试结果
   const [result, setResult] = useState<TestResult | null>(null);
+  // 结果图片索引（用于预加载）
+  const [resultImageIndex, setResultImageIndex] = useState<number | null>(null);
   // 历史记录
   const [history, setHistory] = useState<HistoryRecord[]>(() => getHistory());
 
@@ -160,6 +163,9 @@ export const useQuiz = (): UseQuizReturn => {
         const personalityCode = calculatePersonalityCode(newAnswers);
         const testResult = findResult(personalityCode);
         setResult(testResult);
+        if (testResult) {
+          setResultImageIndex(testResult.imageIndex);
+        }
         setPhase('result');
 
         // 保存到历史记录
@@ -265,6 +271,7 @@ export const useQuiz = (): UseQuizReturn => {
     isLastQuestion,
     dimensionPercents,
     history,
+    resultImageIndex,
 
     // 方法
     startQuiz,

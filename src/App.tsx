@@ -15,6 +15,7 @@ function App() {
     result,
     dimensionPercents,
     history,
+    resultImageIndex,
     startQuiz,
     answerQuestion,
     prevQuestion,
@@ -72,7 +73,7 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <CalculatingView />
+            <CalculatingView resultImageIndex={resultImageIndex ?? 1} />
           </motion.div>
         )}
 

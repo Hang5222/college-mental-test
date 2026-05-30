@@ -14,7 +14,11 @@ const loadingTexts = [
   '测量你的咖啡依赖指数...',
 ];
 
-export default function CalculatingView() {
+interface CalculatingViewProps {
+  resultImageIndex: number;
+}
+
+export default function CalculatingView({ resultImageIndex }: CalculatingViewProps) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
   useEffect(() => {
@@ -24,6 +28,12 @@ export default function CalculatingView() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // 预加载结果图片
+  useEffect(() => {
+    const img = new Image();
+    img.src = new URL(`../assets/image/${resultImageIndex}.webp`, import.meta.url).href;
+  }, [resultImageIndex]);
 
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center px-6 relative overflow-hidden">
