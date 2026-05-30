@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 
 const loadingTexts = [
   '正在扫描你的精神状态...',
@@ -27,23 +26,48 @@ export default function CalculatingView() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center px-6 relative overflow-hidden">
+      {/* 背景横线 */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 27px, #000 27px, #000 28px)',
+      }} />
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="text-center max-w-sm"
+        className="text-center max-w-sm relative z-10"
       >
-        {/* 旋转图标 */}
+        {/* 印章动画 */}
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           className="mb-8 inline-flex"
+          animate={{
+            scale: [1, 1.15, 1],
+            rotate: [0, -5, 5, 0],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
         >
-          <Loader2 className="w-12 h-12 text-indigo-500" />
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full border-4 border-red-500/80 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full border-2 border-red-500/60 flex items-center justify-center">
+                <motion.span
+                  className="text-red-500 text-2xl font-black"
+                  style={{ fontFamily: 'serif' }}
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  诊
+                </motion.span>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* 标题 */}
-        <h2 className="text-xl font-bold text-gray-800 mb-2">
+        <h2 className="text-xl font-bold text-gray-800 mb-3" style={{ fontFamily: 'serif' }}>
           正在生成体检报告
         </h2>
 
@@ -57,6 +81,7 @@ export default function CalculatingView() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
               className="text-sm text-gray-500"
+              style={{ fontFamily: 'monospace' }}
             >
               {loadingTexts[currentTextIndex]}
             </motion.p>
@@ -68,7 +93,7 @@ export default function CalculatingView() {
           {loadingTexts.slice(0, 5).map((_, i) => (
             <motion.div
               key={i}
-              className="w-2 h-2 rounded-full bg-indigo-300"
+              className="w-2 h-2 rounded-full bg-red-300"
               animate={{
                 scale: [1, 1.3, 1],
                 opacity: [0.4, 1, 0.4],

@@ -24,7 +24,7 @@ function App() {
   } = useQuiz();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <AnimatePresence mode="wait">
         {phase === 'home' && (
           <motion.div
