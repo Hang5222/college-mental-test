@@ -1,73 +1,40 @@
-# React + TypeScript + Vite
+# 当代大学生精神状态体检报告
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个有趣的大学生精神状态测试 Web 应用（娱乐向），通过 32 道趣味题目评估你的精神状态人格类型，并生成一份风格化的"体检报告"。
 
-Currently, two official plugins are available:
+## 项目结构
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   ├── HomeView.tsx          # 首页
+│   ├── QuizView.tsx          # 答题页
+│   ├── CalculatingView.tsx   # 计算页（含图片预加载）
+│   └── ResultView.tsx        # 结果页
+├── data/
+│   ├── questions.ts          # 32 道题目数据
+│   └── results.ts            # 16 种人格结果数据
+├── hooks/
+│   └── useQuiz.ts            # 测试逻辑与状态管理
+├── utils/
+│   └── history.ts            # localStorage 历史记录管理
+├── assets/
+│   ├── image/                # 16 张表情包（WebP 格式）
+│   └── avatar.jpg            # 开发者头像
+└── App.tsx                   # 主应用组件
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 人格类型说明
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+四维代码含义：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| 维度 | 高分（>=24） | 低分（<24） |
+|------|-------------|------------|
+| FZ   | 发疯 (F)    | 佛系 (Z)   |
+| XW   | 玄学 (X)    | 唯物 (W)   |
+| CT   | 脆皮 (C)    | 铁人 (T)   |
+| SN   | 社恐 (S)    | 社牛 (N)   |
+
+例如 `FXCS` = 发疯 + 玄学 + 脆皮 + 社恐 = "赛博祈福的小脆皮"
+
+
