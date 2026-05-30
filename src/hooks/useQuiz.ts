@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { questions, type Dimension } from '../data/questions';
 import { results, type TestResult, type PersonalityCode } from '../data/results';
+import { getHistory, addHistory, clearHistory as clearStorageHistory, type HistoryRecord } from '../utils/history';
 
 // 测试阶段类型
 export type QuizPhase = 'home' | 'testing' | 'calculating' | 'result';
@@ -34,17 +35,20 @@ export interface UseQuizReturn {
   isFirstQuestion: boolean;
   isLastQuestion: boolean;
   dimensionPercents: DimensionPercent[];
+  history: HistoryRecord[];
 
   // 方法
   startQuiz: () => void;
   answerQuestion: (score: number) => void;
   prevQuestion: () => void;
   resetQuiz: () => void;
+  viewHistoryResult: (record: HistoryRecord) => void;
+  clearHistory: () => void;
 }
 
 // 维度代码映射（根据得分 >=24 或 <24 决定）
 // F/Z: 发疯(F) >=24 | 佛系(Z) <24
-// L/J: 摆烂(L) >=24 | 内卷(J) <24
+// X/W: 玄学(X) >=24 | 唯物(W) <24
 // C/T: 脆皮(C) >=24 | 铁人(T) <24
 // S/N: 社恐(S) >=24 | 社牛(N) <24
 const DIMENSION_THRESHOLD = 24;
@@ -54,8 +58,8 @@ const getDimensionCode = (dimension: Dimension, score: number): string => {
   switch (dimension) {
     case 'FZ':
       return isHigh ? 'F' : 'Z';
-    case 'LJ':
-      return isHigh ? 'L' : 'J';
+    case 'XW':
+      return isHigh ? 'X' : 'W';
     case 'CT':
       return isHigh ? 'C' : 'T';
     case 'SN':
@@ -70,24 +74,25 @@ const calculatePersonalityCode = (answers: Record<number, number>): PersonalityC
   // 初始化四个维度的得分统计
   const dimensionScores: Record<Dimension, DimensionScore> = {
     FZ: { total: 0, count: 0 },
-    LJ: { total: 0, count: 0 },
+    XW: { total: 0, count: 0 },
     CT: { total: 0, count: 0 },
     SN: { total: 0, count: 0 },
   };
 
-  // 累加各维度得分
+  // 累加各维度得分（反向题需要反转分数：1->5, 2->4, 3->3, 4->2, 5->1）
   Object.entries(answers).forEach(([questionId, score]) => {
     const question = questions.find(q => q.id === Number(questionId));
     if (question) {
-      dimensionScores[question.dimension].total += score;
+      const effectiveScore = question.reverse ? 6 - score : score;
+      dimensionScores[question.dimension].total += effectiveScore;
       dimensionScores[question.dimension].count += 1;
     }
   });
 
-  // 生成4位人格代码（按 FZ -> LJ -> CT -> SN 的顺序）
+  // 生成4位人格代码（按 FZ -> XW -> CT -> SN 的顺序）
   const code = [
     getDimensionCode('FZ', dimensionScores.FZ.total),
-    getDimensionCode('LJ', dimensionScores.LJ.total),
+    getDimensionCode('XW', dimensionScores.XW.total),
     getDimensionCode('CT', dimensionScores.CT.total),
     getDimensionCode('SN', dimensionScores.SN.total),
   ].join('');
@@ -109,6 +114,8 @@ export const useQuiz = (): UseQuizReturn => {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   // 最终测试结果
   const [result, setResult] = useState<TestResult | null>(null);
+  // 历史记录
+  const [history, setHistory] = useState<HistoryRecord[]>(() => getHistory());
 
   // 当前题目
   const currentQuestion = useMemo(() => {
@@ -154,6 +161,17 @@ export const useQuiz = (): UseQuizReturn => {
         const testResult = findResult(personalityCode);
         setResult(testResult);
         setPhase('result');
+
+        // 保存到历史记录
+        if (testResult) {
+          const record: HistoryRecord = {
+            timestamp: Date.now(),
+            code: testResult.code,
+            answers: newAnswers,
+          };
+          addHistory(record);
+          setHistory(getHistory());
+        }
       }, 2000);
     } else {
       // 不是最后一题：进入下一题
@@ -176,11 +194,25 @@ export const useQuiz = (): UseQuizReturn => {
     setResult(null);
   }, []);
 
+  // 查看历史记录结果
+  const viewHistoryResult = useCallback((record: HistoryRecord) => {
+    setAnswers(record.answers);
+    const testResult = findResult(record.code);
+    setResult(testResult);
+    setPhase('result');
+  }, []);
+
+  // 清空历史记录
+  const clearHistory = useCallback(() => {
+    clearStorageHistory();
+    setHistory([]);
+  }, []);
+
   // 计算各维度百分比（用于结果页展示）
   const dimensionPercents = useMemo((): DimensionPercent[] => {
     const dimensionScores: Record<Dimension, DimensionScore> = {
       FZ: { total: 0, count: 0 },
-      LJ: { total: 0, count: 0 },
+      XW: { total: 0, count: 0 },
       CT: { total: 0, count: 0 },
       SN: { total: 0, count: 0 },
     };
@@ -188,14 +220,15 @@ export const useQuiz = (): UseQuizReturn => {
     Object.entries(answers).forEach(([questionId, score]) => {
       const question = questions.find(q => q.id === Number(questionId));
       if (question) {
-        dimensionScores[question.dimension].total += score;
+        const effectiveScore = question.reverse ? 6 - score : score;
+        dimensionScores[question.dimension].total += effectiveScore;
         dimensionScores[question.dimension].count += 1;
       }
     });
 
     const dimensionInfoMap: Record<Dimension, { name: string; leftLabel: string; rightLabel: string }> = {
       FZ: { name: '发疯/佛系', leftLabel: '发疯', rightLabel: '佛系' },
-      LJ: { name: '摆烂/内卷', leftLabel: '摆烂', rightLabel: '内卷' },
+      XW: { name: '玄学/唯物', leftLabel: '玄学', rightLabel: '唯物' },
       CT: { name: '脆皮/铁人', leftLabel: '脆皮', rightLabel: '铁人' },
       SN: { name: '社恐/社牛', leftLabel: '社恐', rightLabel: '社牛' },
     };
@@ -231,11 +264,14 @@ export const useQuiz = (): UseQuizReturn => {
     isFirstQuestion,
     isLastQuestion,
     dimensionPercents,
+    history,
 
     // 方法
     startQuiz,
     answerQuestion,
     prevQuestion,
     resetQuiz,
+    viewHistoryResult,
+    clearHistory,
   };
 };

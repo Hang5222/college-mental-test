@@ -3,6 +3,10 @@ import { RotateCcw, Share2, Quote, Lightbulb, Activity } from 'lucide-react';
 import type { TestResult } from '../data/results';
 import type { DimensionPercent } from '../hooks/useQuiz';
 
+function getResultImageUrl(index: number): string {
+  return new URL(`../assets/image/${index}.jpg`, import.meta.url).href;
+}
+
 interface ResultViewProps {
   result: TestResult;
   dimensionPercents: DimensionPercent[];
@@ -56,15 +60,29 @@ export default function ResultView({ result, dimensionPercents, onReset }: Resul
           <div className="h-3 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
           <div className="p-6 text-center">
-            {/* 人格代码 */}
+            {/* 结果表情包 */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring' }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 text-white text-2xl font-bold mb-4 shadow-lg"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mx-auto mb-4 w-48 h-48 rounded-2xl overflow-hidden shadow-md border border-gray-100"
+            >
+              <img
+                src={getResultImageUrl(result.imageIndex)}
+                alt={result.name}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+
+            {/* 人格代码（纯文本） */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+              className="inline-block text-xs font-medium text-gray-400 tracking-wider mb-2"
             >
               {result.code}
-            </motion.div>
+            </motion.span>
 
             {/* 诊断名称 */}
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -80,6 +98,38 @@ export default function ResultView({ result, dimensionPercents, onReset }: Resul
             </div>
           </div>
         </div>
+
+        {/* 状态分析 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-3xl shadow-lg shadow-gray-100 p-6 mb-6"
+        >
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-indigo-500" />
+            状态分析
+          </h3>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {result.analysis}
+          </p>
+        </motion.div>
+
+        {/* 生存建议 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-linear-to-br from-amber-50 to-orange-50 rounded-3xl shadow-lg shadow-gray-100 p-6 mb-8 border border-amber-100"
+        >
+          <h3 className="text-sm font-semibold text-amber-800 mb-3 flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 text-amber-500" />
+            生存建议
+          </h3>
+          <p className="text-sm text-amber-700 leading-relaxed">
+            {result.advice}
+          </p>
+        </motion.div>        
 
         {/* 维度分析 */}
         <motion.div
@@ -131,38 +181,6 @@ export default function ResultView({ result, dimensionPercents, onReset }: Resul
               </motion.div>
             ))}
           </div>
-        </motion.div>
-
-        {/* 状态分析 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-3xl shadow-lg shadow-gray-100 p-6 mb-6"
-        >
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-indigo-500" />
-            状态分析
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {result.analysis}
-          </p>
-        </motion.div>
-
-        {/* 生存建议 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-linear-to-br from-amber-50 to-orange-50 rounded-3xl shadow-lg shadow-gray-100 p-6 mb-8 border border-amber-100"
-        >
-          <h3 className="text-sm font-semibold text-amber-800 mb-3 flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-amber-500" />
-            生存建议
-          </h3>
-          <p className="text-sm text-amber-700 leading-relaxed">
-            {result.advice}
-          </p>
         </motion.div>
 
         {/* 操作按钮 */}

@@ -14,10 +14,13 @@ function App() {
     isFirstQuestion,
     result,
     dimensionPercents,
+    history,
     startQuiz,
     answerQuestion,
     prevQuestion,
     resetQuiz,
+    viewHistoryResult,
+    clearHistory,
   } = useQuiz();
 
   return (
@@ -31,7 +34,12 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <HomeView onStart={startQuiz} />
+            <HomeView
+              onStart={startQuiz}
+              history={history}
+              onViewHistory={viewHistoryResult}
+              onClearHistory={clearHistory}
+            />
           </motion.div>
         )}
 
